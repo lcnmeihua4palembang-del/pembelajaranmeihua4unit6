@@ -1,0 +1,685 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pembelajaran Interaktif: Meihua 4 Unit 6</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/hanzi-writer@3.5/dist/hanzi-writer.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/tone/14.8.49/Tone.js"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;800&display=swap');
+        body { font-family: 'Nunito', sans-serif; }
+        .font-simsun { font-family: "SimSun", "STSong", serif; }
+        
+        .tab-content { display: none; animation: fadeIn 0.5s; }
+        .tab-content.active { display: block; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        
+        .hanzi-container { width: 150px; height: 150px; border: 3px dashed #93c5fd; border-radius: 12px; margin: auto; background: white; }
+        
+        /* Flashcard Styles */
+        .flashcard { perspective: 1000px; cursor: pointer; }
+        .flashcard-inner { transition: transform 0.6s cubic-bezier(0.4, 0.2, 0.2, 1); transform-style: preserve-3d; }
+        .flashcard.flipped .flashcard-inner { transform: rotateY(180deg); }
+        .flashcard-front, .flashcard-back { backface-visibility: hidden; position: absolute; inset: 0; border-radius: 1rem; }
+        .flashcard-back { transform: rotateY(180deg); }
+        
+        /* Hanzi Zoom Animation */
+        .hanzi-text { transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); display: inline-block; }
+        .hanzi-zoomed { transform: scale(2.2); color: #2563eb; z-index: 50; position: relative; text-shadow: 2px 2px 4px rgba(0,0,0,0.2); }
+
+        /* Game Match Styles */
+        .match-btn { transition: all 0.2s; border: 2px solid #cbd5e1; }
+        .match-btn.selected { background-color: #fef08a; border-color: #eab308; transform: scale(1.05); }
+        .match-btn.matched { background-color: #86efac; border-color: #22c55e; color: #166534; pointer-events: none; opacity: 0.7; }
+        .match-btn.error { background-color: #fca5a5; border-color: #ef4444; animation: shake 0.4s; }
+        
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-5px); }
+            50% { transform: translateX(5px); }
+            75% { transform: translateX(-5px); }
+        }
+    </style>
+</head>
+<body class="bg-yellow-50 text-gray-800 font-sans">
+    <div class="max-w-4xl mx-auto p-4">
+        <header class="text-center mb-8 bg-gradient-to-r from-blue-500 to-indigo-500 text-white p-6 rounded-2xl shadow-xl border-4 border-blue-300">
+            <h1 class="text-4xl font-extrabold tracking-wider">🐼 第六课 (Unit 6) 🎒</h1>
+            <h2 class="text-2xl mt-3 font-semibold bg-white/20 inline-block px-4 py-2 rounded-full">巴厘岛怎么去最好呢？<br><span class="text-lg">(by lcnpalembang-08994477998)</span></h2>
+        </header>
+
+        <!-- Navigation -->
+        <nav class="flex flex-wrap gap-3 justify-center mb-8">
+            <button onclick="openTab('vocab')" class="tab-btn bg-blue-100 hover:bg-blue-200 text-blue-800 font-extrabold py-3 px-5 rounded-full active-tab border-4 border-blue-500 shadow-md transition-transform hover:scale-105">1. Kosakata 📖</button>
+            <button onclick="openTab('matchGame')" class="tab-btn bg-pink-100 hover:bg-pink-200 text-pink-800 font-extrabold py-3 px-5 rounded-full border-4 border-transparent shadow-md transition-transform hover:scale-105">2. Game Jodohkan 🎮</button>
+            <button onclick="openTab('writing')" class="tab-btn bg-green-100 hover:bg-green-200 text-green-800 font-extrabold py-3 px-5 rounded-full border-4 border-transparent shadow-md transition-transform hover:scale-105">3. Guratan 🖌️</button>
+            <button onclick="openTab('workbook')" class="tab-btn bg-orange-100 hover:bg-orange-200 text-orange-800 font-extrabold py-3 px-5 rounded-full border-4 border-transparent shadow-md transition-transform hover:scale-105">4. Latihan WB Lengkap 📝</button>
+            <button onclick="openTab('readingTab')" class="tab-btn bg-teal-100 hover:bg-teal-200 text-teal-800 font-extrabold py-3 px-5 rounded-full border-4 border-transparent shadow-md transition-transform hover:scale-105">5. Membaca & Kuis 📚</button>
+        </nav>
+
+        <!-- Tab: Vocabulary -->
+        <section id="vocab" class="tab-content active bg-white p-6 rounded-3xl shadow-lg border-4 border-blue-100">
+            <h3 class="text-3xl font-extrabold mb-4 border-b-4 border-blue-200 pb-2 text-blue-600">🌟 Belajar Kosakata (生词)</h3>
+            <div class="mb-6 flex flex-col md:flex-row items-center justify-between bg-blue-50 p-4 rounded-xl border-2 border-blue-200">
+                <p class="text-md text-blue-800 font-semibold mb-2 md:mb-0">💡 <b>Tips:</b> Klik *Hanzi* (huruf Mandarin) untuk memperbesar! Klik area putih lain untuk melihat artinya.</p>
+                <label class="flex items-center space-x-2 font-extrabold cursor-pointer bg-white px-4 py-2 rounded-lg shadow-sm border border-gray-200">
+                    <input type="checkbox" id="hidePinyin" class="w-6 h-6 text-blue-600 rounded" onchange="togglePinyin()">
+                    <span class="text-red-500">Sembunyikan Pinyin 🙈</span>
+                </label>
+            </div>
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-6" id="vocab-container">
+                <!-- Cards injected by JS -->
+            </div>
+        </section>
+
+        <!-- Tab: Matching Game -->
+        <section id="matchGame" class="tab-content bg-white p-6 rounded-3xl shadow-lg border-4 border-pink-100">
+            <h3 class="text-3xl font-extrabold mb-4 border-b-4 border-pink-200 pb-2 text-pink-600">🎯 Kuis Jodohkan Kosakata!</h3>
+            <p class="text-lg font-semibold text-gray-600 mb-6 bg-pink-50 p-3 rounded-lg border border-pink-200">Klik satu Pinyin di sebelah kiri, lalu temukan Hanzi yang cocok di sebelah kanan!</p>
+            <div class="flex justify-between gap-4">
+                <div class="w-1/2 flex flex-col gap-3" id="match-pinyin-col"></div>
+                <div class="w-1/2 flex flex-col gap-3" id="match-hanzi-col"></div>
+            </div>
+            <div class="mt-6 text-center">
+                <button onclick="initMatchGame()" class="bg-pink-500 hover:bg-pink-600 text-white font-extrabold py-3 px-8 rounded-full shadow-lg transform transition hover:scale-110">🔄 Ulangi Permainan</button>
+                <p id="match-feedback" class="mt-4 font-bold text-2xl text-green-500"></p>
+            </div>
+        </section>
+
+        <!-- Tab: Writing -->
+        <section id="writing" class="tab-content bg-white p-6 rounded-3xl shadow-lg border-4 border-green-100">
+            <h3 class="text-3xl font-extrabold mb-4 border-b-4 border-green-200 pb-2 text-green-600">🖌️ Menulis Guratan (写汉字)</h3>
+            <p class="mb-6 bg-green-50 p-3 rounded-lg border border-green-200 font-semibold text-green-800">Klik "Animasi" untuk melihat cara menulis. Klik "Latihan" untuk mencoba menggambar menggunakan mouse atau jarimu di dalam kotak!</p>
+            <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-8" id="writing-container">
+                <!-- Hanzi writers injected by JS -->
+            </div>
+        </section>
+
+        <!-- Tab: Workbook -->
+        <section id="workbook" class="tab-content bg-white p-6 rounded-3xl shadow-lg border-4 border-orange-100">
+            <h3 class="text-3xl font-extrabold mb-4 border-b-4 border-orange-200 pb-2 text-orange-600">📝 Latihan Buku Kerja (Workbook)</h3>
+            <p class="text-lg font-semibold text-gray-600 mb-6">Selesaikan semua tantangan di bawah ini! Klik periksa untuk melihat jawaban yang benar.</p>
+            
+            <!-- WB Bagian 1: Kosakata -->
+            <div class="mb-10 bg-yellow-50 p-5 rounded-2xl border-2 border-yellow-200">
+                <h4 class="font-extrabold text-xl mb-4 text-yellow-800">Bagian 1: Pilih Kosakata Tepat</h4>
+                <div class="space-y-4 text-lg font-semibold" id="sentence-container">
+                    <!-- Sentences injected by JS -->
+                </div>
+            </div>
+
+            <!-- WB Bagian 2: Grammar 可以 -->
+            <div class="mb-10 bg-blue-50 p-5 rounded-2xl border-2 border-blue-200">
+                <h4 class="font-extrabold text-xl mb-4 text-blue-800">Bagian 2: Penggunaan "可以" (Bisa vs Boleh)</h4>
+                <p class="mb-4 text-blue-700">Apakah kata 可以 (kěyǐ) pada kalimat ini berarti <strong>能 (Bisa)</strong> atau <strong>允许 (Boleh)</strong>?</p>
+                <div class="space-y-4 font-semibold text-lg">
+                    <p>1. 爸爸说今天晚上我不<b>可以</b>看电视。<br>
+                        <select id="wb-g1" class="border-2 border-blue-300 rounded-lg p-2 mt-1 bg-white text-blue-700 outline-none"><option value="">Pilih Arti...</option><option value="允许">允许 (Boleh/Izin)</option><option value="能">能 (Bisa/Mampu)</option></select> <span id="fb-wb-g1"></span>
+                    </p>
+                    <p>2. 你<b>可以</b>教我汉语吗？<br>
+                        <select id="wb-g2" class="border-2 border-blue-300 rounded-lg p-2 mt-1 bg-white text-blue-700 outline-none"><option value="">Pilih Arti...</option><option value="允许">允许 (Boleh/Izin)</option><option value="能">能 (Bisa/Mampu)</option></select> <span id="fb-wb-g2"></span>
+                    </p>
+                    <p>3. 明天我<b>可以</b>跟你一起去学校。<br>
+                        <select id="wb-g3" class="border-2 border-blue-300 rounded-lg p-2 mt-1 bg-white text-blue-700 outline-none"><option value="">Pilih Arti...</option><option value="允许">允许 (Boleh/Izin)</option><option value="能">能 (Bisa/Mampu)</option></select> <span id="fb-wb-g3"></span>
+                    </p>
+                    <p>4. 妈妈，我现在<b>可以</b>去丽丽的家吗？<br>
+                        <select id="wb-g4" class="border-2 border-blue-300 rounded-lg p-2 mt-1 bg-white text-blue-700 outline-none"><option value="">Pilih Arti...</option><option value="允许">允许 (Boleh/Izin)</option><option value="能">能 (Bisa/Mampu)</option></select> <span id="fb-wb-g4"></span>
+                    </p>
+                </div>
+            </div>
+
+            <!-- WB Bagian 3: Logika Matematika -->
+            <div class="mb-10 bg-green-50 p-5 rounded-2xl border-2 border-green-200">
+                <h4 class="font-extrabold text-xl mb-4 text-green-800">Bagian 3: Analisis Tabel Logika</h4>
+                <div class="overflow-x-auto">
+                    <table class="w-full mb-6 text-center border-collapse border-2 border-green-300 bg-white shadow-sm rounded-lg overflow-hidden">
+                        <tr class="bg-green-200 text-green-900"><th class="border-2 border-green-300 p-3">Nama</th><th class="border-2 border-green-300 p-3">铅笔 (Pensil)</th><th class="border-2 border-green-300 p-3">故事书 (Buku Cerita)</th><th class="border-2 border-green-300 p-3">本子 (Buku Tulis)</th></tr>
+                        <tr class="hover:bg-green-50 transition-colors"><td class="border-2 border-green-300 p-3 font-extrabold text-green-700">丽丽 (Lili)</td><td class="border-2 border-green-300 p-3">五支 (5)</td><td class="border-2 border-green-300 p-3">十七本 (17)</td><td class="border-2 border-green-300 p-3">二十个 (20)</td></tr>
+                        <tr class="hover:bg-green-50 transition-colors"><td class="border-2 border-green-300 p-3 font-extrabold text-blue-700">天明 (Tianming)</td><td class="border-2 border-green-300 p-3">八支 (8)</td><td class="border-2 border-green-300 p-3">五本 (5)</td><td class="border-2 border-green-300 p-3">二十四个 (24)</td></tr>
+                        <tr class="hover:bg-green-50 transition-colors"><td class="border-2 border-green-300 p-3 font-extrabold text-pink-700">丽莎 (Lisha)</td><td class="border-2 border-green-300 p-3">十二支 (12)</td><td class="border-2 border-green-300 p-3">十五本 (15)</td><td class="border-2 border-green-300 p-3">二十个 (20)</td></tr>
+                    </table>
+                </div>
+                <div class="space-y-4 font-semibold text-lg">
+                    <p>1. 谁的铅笔最多？ (Pensil siapa yang paling banyak?) <br><select id="wb-m1" class="border-2 border-green-400 rounded-lg p-2 mt-1 outline-none"><option value="">Pilih...</option><option value="丽丽">丽丽</option><option value="天明">天明</option><option value="丽莎">丽莎</option></select> <span id="fb-wb-m1"></span></p>
+                    <p>2. 谁的铅笔最少？ (Pensil siapa yang paling sedikit?) <br><select id="wb-m2" class="border-2 border-green-400 rounded-lg p-2 mt-1 outline-none"><option value="">Pilih...</option><option value="丽丽">丽丽</option><option value="天明">天明</option><option value="丽莎">丽莎</option></select> <span id="fb-wb-m2"></span></p>
+                    <p>3. 谁的故事书最多？ (Buku cerita siapa paling banyak?) <br><select id="wb-m3" class="border-2 border-green-400 rounded-lg p-2 mt-1 outline-none"><option value="">Pilih...</option><option value="丽丽">丽丽</option><option value="天明">天明</option><option value="丽莎">丽莎</option></select> <span id="fb-wb-m3"></span></p>
+                    <p>4. 谁的故事书最少？ (Buku cerita siapa paling sedikit?) <br><select id="wb-m4" class="border-2 border-green-400 rounded-lg p-2 mt-1 outline-none"><option value="">Pilih...</option><option value="丽丽">丽丽</option><option value="天明">天明</option><option value="丽莎">丽莎</option></select> <span id="fb-wb-m4"></span></p>
+                    <p>5. 谁的本子最多？ (Buku tulis siapa paling banyak?) <br><select id="wb-m5" class="border-2 border-green-400 rounded-lg p-2 mt-1 outline-none"><option value="">Pilih...</option><option value="丽丽">丽丽</option><option value="天明">天明</option><option value="丽莎">丽莎</option></select> <span id="fb-wb-m5"></span></p>
+                </div>
+            </div>
+
+            <!-- WB Bagian 4: Reading Teks -->
+            <div class="mb-10 bg-purple-50 p-5 rounded-2xl border-2 border-purple-200">
+                <h4 class="font-extrabold text-xl mb-4 text-purple-800">Bagian 4: Membaca (阅读) & Melengkapi Kalimat</h4>
+                <div class="bg-white p-5 rounded-xl mb-6 border-2 border-purple-300 text-lg leading-relaxed shadow-sm">
+                    <p class="mb-2">你们好！我叫<span class="font-bold text-purple-700">小芳</span>，我今年九岁了。我很喜欢去学校。每天早上<span class="font-bold text-purple-700">妈妈</span>开<span class="font-bold text-purple-700">汽车</span>送我去学校。</p>
+                    <p class="mb-2">这是我姐姐。她叫<span class="font-bold text-purple-700">小月</span>。她今年十三岁了。她说她想骑<span class="font-bold text-purple-700">自行车</span>去学校。昨天妈妈给她买了一辆粉红色的自行车，这辆自行车很漂亮，姐姐很喜欢。</p>
+                    <p class="mb-2">这是我<span class="font-bold text-purple-700">爸爸</span>。他每天坐<span class="font-bold text-purple-700">火车</span>去上班。他说坐火车比坐汽车<span class="font-bold text-purple-700">快</span>，因为坐火车不堵车(dǔchē = macet)。</p>
+                    <p>这是我爷爷和奶奶。明天他们要来我们家。因为他们住得很远，所以他们应该坐<span class="font-bold text-purple-700">飞机</span>来的。</p>
+                </div>
+                <p class="font-bold text-gray-700 mb-4">Lengkapi kalimat di bawah ini sesuai bacaan (Gunakan Pinyin atau Hanzi):</p>
+                <div class="space-y-4 font-semibold text-lg">
+                    <p>1. 小月是小芳的 <input type="text" id="wb-r1" class="border-b-2 border-purple-400 bg-transparent text-center w-32 outline-none text-purple-700"> 。 <span id="fb-wb-r1"></span></p>
+                    <p>2. 小芳今年 <input type="text" id="wb-r2" class="border-b-2 border-purple-400 bg-transparent text-center w-32 outline-none text-purple-700"> 岁了。 <span id="fb-wb-r2"></span></p>
+                    <p>3. 小月今年 <input type="text" id="wb-r3" class="border-b-2 border-purple-400 bg-transparent text-center w-32 outline-none text-purple-700"> 岁了。 <span id="fb-wb-r3"></span></p>
+                    <p>4. 每天早上 <input type="text" id="wb-r4" class="border-b-2 border-purple-400 bg-transparent text-center w-32 outline-none text-purple-700"> 送我去学校。 <span id="fb-wb-r4"></span></p>
+                    <p>5. 小芳(坐/骑) <input type="text" id="wb-r5" class="border-b-2 border-purple-400 bg-transparent text-center w-32 outline-none text-purple-700"> 去学校。 <span id="fb-wb-r5"></span></p>
+                    <p>6. 小月想(坐/骑) <input type="text" id="wb-r6" class="border-b-2 border-purple-400 bg-transparent text-center w-32 outline-none text-purple-700"> 去学校。 <span id="fb-wb-r6"></span></p>
+                    <p>7. 爸爸(坐/骑) <input type="text" id="wb-r7" class="border-b-2 border-purple-400 bg-transparent text-center w-32 outline-none text-purple-700"> 去上班。 <span id="fb-wb-r7"></span></p>
+                    <p>8. 坐火车比坐 <input type="text" id="wb-r8" class="border-b-2 border-purple-400 bg-transparent text-center w-32 outline-none text-purple-700"> 快。 <span id="fb-wb-r8"></span></p>
+                    <p>9. 明天 <input type="text" id="wb-r9" class="border-b-2 border-purple-400 bg-transparent text-center w-32 outline-none text-purple-700"> 要来我们家。 <span id="fb-wb-r9"></span></p>
+                    <p>10. 因为我爷爷和奶奶住得很远，所以他们应该坐 <input type="text" id="wb-r10" class="border-b-2 border-purple-400 bg-transparent text-center w-32 outline-none text-purple-700"> 来我们家。 <span id="fb-wb-r10"></span></p>
+                </div>
+            </div>
+
+            <div class="text-center">
+                <button onclick="checkWorkbookLengkap()" class="bg-orange-500 hover:bg-orange-600 text-white font-extrabold text-xl py-4 px-10 rounded-full shadow-xl transform transition hover:scale-110">🚀 Periksa Semua Jawaban!</button>
+                <div id="wb-final-feedback" class="mt-6 font-extrabold text-3xl"></div>
+            </div>
+        </section>
+
+        <!-- Tab: Membaca & Kuis (Reading) -->
+        <section id="readingTab" class="tab-content bg-white p-6 rounded-3xl shadow-lg border-4 border-teal-100">
+            <h3 class="text-3xl font-extrabold mb-4 border-b-4 border-teal-200 pb-2 text-teal-600">📚 Membaca (阅读) & Kuis Percakapan</h3>
+            
+            <!-- Percakapan dari TB -->
+            <div class="mb-8 bg-teal-50 p-6 rounded-2xl border-2 border-teal-200">
+                <h4 class="font-extrabold text-2xl mb-4 text-teal-800 text-center">巴厘岛怎么去最好呢？<br><span class="text-lg font-bold text-teal-600">(Bagaimana cara terbaik pergi ke Pulau Bali?)</span></h4>
+                
+                <div class="space-y-4 text-lg">
+                    <!-- Chat bubbles -->
+                    <div class="flex items-start gap-4">
+                        <div class="bg-blue-100 text-blue-900 px-4 py-3 rounded-2xl rounded-tl-none shadow-sm border border-blue-200 max-w-[80%]">
+                            <span class="font-bold block mb-1">👦 Anak Laki-laki 1:</span>
+                            我们一家人要去巴厘岛旅游... 巴厘岛怎么去最好呢？<br>
+                            <span class="text-sm italic">(Keluarga kita akan pergi berwisata ke Pulau Bali... Bagaimana cara terbaik pergi ke Bali?)</span>
+                        </div>
+                    </div>
+                    <div class="flex items-start gap-4 justify-end">
+                        <div class="bg-green-100 text-green-900 px-4 py-3 rounded-2xl rounded-tr-none shadow-sm border border-green-200 max-w-[80%]">
+                            <span class="font-bold block mb-1">👦 Anak Laki-laki 2:</span>
+                            我们可以骑自行车去！<br>
+                            <span class="text-sm italic">(Kita bisa pergi naik sepeda!)</span>
+                        </div>
+                    </div>
+                    <div class="flex items-start gap-4">
+                        <div class="bg-pink-100 text-pink-900 px-4 py-3 rounded-2xl rounded-tl-none shadow-sm border border-pink-200 max-w-[80%]">
+                            <span class="font-bold block mb-1">👧 Anak Perempuan 1:</span>
+                            骑自行车太慢了。怎么去比较快？<br>
+                            <span class="text-sm italic">(Naik sepeda terlalu lambat. Bagaimana perginya yang lebih cepat?)</span>
+                        </div>
+                    </div>
+                    <div class="flex items-start gap-4 justify-end">
+                        <div class="bg-yellow-100 text-yellow-900 px-4 py-3 rounded-2xl rounded-tr-none shadow-sm border border-yellow-200 max-w-[80%]">
+                            <span class="font-bold block mb-1">👧 Anak Perempuan 2:</span>
+                            我们可以坐汽车去！<br>
+                            <span class="text-sm italic">(Kita bisa pergi naik mobil!)</span>
+                        </div>
+                    </div>
+                    <div class="flex items-start gap-4">
+                        <div class="bg-blue-100 text-blue-900 px-4 py-3 rounded-2xl rounded-tl-none shadow-sm border border-blue-200 max-w-[80%]">
+                            <span class="font-bold block mb-1">👦 Anak Laki-laki 3:</span>
+                            巴厘岛很远，坐汽车一定很累。<br>
+                            <span class="text-sm italic">(Pulau Bali sangat jauh, naik mobil pasti sangat lelah.)</span>
+                        </div>
+                    </div>
+                    <div class="flex items-start gap-4 justify-end">
+                        <div class="bg-pink-100 text-pink-900 px-4 py-3 rounded-2xl rounded-tr-none shadow-sm border border-pink-200 max-w-[80%]">
+                            <span class="font-bold block mb-1">👧 Anak Perempuan 3:</span>
+                            我们可以坐火车去！<br>
+                            <span class="text-sm italic">(Kita bisa pergi naik kereta api!)</span>
+                        </div>
+                    </div>
+                    <div class="flex items-start gap-4">
+                        <div class="bg-green-100 text-green-900 px-4 py-3 rounded-2xl rounded-tl-none shadow-sm border border-green-200 max-w-[80%]">
+                            <span class="font-bold block mb-1">👦 Anak Laki-laki 4:</span>
+                            火车没有开到巴厘岛的，我们应该转渡轮(dùlún = kapal feri)。<br>
+                            <span class="text-sm italic">(Kereta api tidak sampai ke Pulau Bali, kita harus ganti naik kapal feri.)</span>
+                        </div>
+                    </div>
+                    <div class="flex items-start gap-4 justify-end">
+                        <div class="bg-yellow-100 text-yellow-900 px-4 py-3 rounded-2xl rounded-tr-none shadow-sm border border-yellow-200 max-w-[80%]">
+                            <span class="font-bold block mb-1">👧 Anak Perempuan 4:</span>
+                            我们可以坐飞机去！<br>
+                            <span class="text-sm italic">(Kita bisa pergi naik pesawat terbang!)</span>
+                        </div>
+                    </div>
+                    <div class="flex items-start gap-4">
+                        <div class="bg-blue-100 text-blue-900 px-4 py-3 rounded-2xl rounded-tl-none shadow-sm border border-blue-200 max-w-[80%]">
+                            <span class="font-bold block mb-1">👦 Anak Laki-laki 1:</span>
+                            坐飞机很快。好，我们坐飞机去吧。大家都同意吗？<br>
+                            <span class="text-sm italic">(Naik pesawat sangat cepat. Baik, kita pergi naik pesawat saja. Apakah semuanya setuju?)</span>
+                        </div>
+                    </div>
+                    <div class="flex items-start gap-4 justify-center mt-6">
+                        <div class="bg-gradient-to-r from-orange-200 to-red-200 text-red-900 font-extrabold text-xl px-8 py-3 rounded-full shadow-md border-2 border-red-300">
+                            众人 (Semuanya): 同意！同意！同意！ (Setuju! Setuju! Setuju!)
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Kuis Pilihan Ganda -->
+            <h4 class="font-extrabold text-2xl mb-4 text-teal-800 border-t-2 border-teal-200 pt-4">📝 Kuis Pemahaman Cerita</h4>
+            <div class="flex justify-between items-center mb-6">
+                <p class="text-lg font-semibold text-gray-700">Jawab 10 pertanyaan acak di bawah ini!</p>
+                <button onclick="renderReadingQuiz()" class="bg-teal-100 hover:bg-teal-200 text-teal-700 font-bold py-2 px-4 rounded-lg shadow-sm border border-teal-300">🔄 Acak Ulang Soal</button>
+            </div>
+            
+            <div id="reading-quiz-container" class="space-y-6">
+                <!-- Soal di-generate via JS -->
+            </div>
+
+            <div class="text-center mt-8">
+                <button onclick="checkReadingQuiz()" class="bg-teal-500 hover:bg-teal-600 text-white font-extrabold text-xl py-4 px-10 rounded-full shadow-xl transform transition hover:scale-110">✔️ Periksa Kuis Membaca!</button>
+                <div id="rq-final-feedback" class="mt-6 font-extrabold text-3xl"></div>
+            </div>
+        </section>
+    </div>
+
+    <script>
+        // --- Navigation ---
+        function openTab(tabId) {
+            document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
+            
+            const btnColors = {
+                'vocab': ['bg-blue-100', 'text-blue-800', 'border-blue-500'],
+                'matchGame': ['bg-pink-100', 'text-pink-800', 'border-pink-500'],
+                'writing': ['bg-green-100', 'text-green-800', 'border-green-500'],
+                'workbook': ['bg-orange-100', 'text-orange-800', 'border-orange-500'],
+                'readingTab': ['bg-teal-100', 'text-teal-800', 'border-teal-500']
+            };
+
+            document.querySelectorAll('.tab-btn').forEach(el => {
+                el.classList.remove('border-blue-500', 'border-pink-500', 'border-green-500', 'border-orange-500', 'border-teal-500');
+                el.classList.add('border-transparent');
+            });
+            
+            document.getElementById(tabId).classList.add('active');
+            event.target.classList.remove('border-transparent');
+            event.target.classList.add(btnColors[tabId][2]);
+        }
+
+        // --- Vocabulary Data ---
+        const vocab = [
+            { hanzi: "巴厘岛", pinyin: "Bālí dǎo", meaning: "Pulau Bali" },
+            { hanzi: "旅游", pinyin: "lǚyóu", meaning: "wisata; tur" },
+            { hanzi: "最", pinyin: "zuì", meaning: "paling" },
+            { hanzi: "可以", pinyin: "kěyǐ", meaning: "boleh; bisa" },
+            { hanzi: "慢", pinyin: "màn", meaning: "perlahan; lambat" },
+            { hanzi: "快", pinyin: "kuài", meaning: "cepat" },
+            { hanzi: "汽车", pinyin: "qìchē", meaning: "mobil" },
+            { hanzi: "远", pinyin: "yuǎn", meaning: "jauh" },
+            { hanzi: "累", pinyin: "lèi", meaning: "lelah" },
+            { hanzi: "火车", pinyin: "huǒchē", meaning: "kereta api" },
+            { hanzi: "应该", pinyin: "yīnggāi", meaning: "harus; seharusnya" },
+            { hanzi: "飞机", pinyin: "fēijī", meaning: "pesawat terbang" }
+        ];
+
+        // Shuffle array helper
+        function shuffleArray(array) {
+            for (let i = array.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [array[i], array[j]] = [array[j], array[i]];
+            }
+            return array;
+        }
+
+        // --- Flashcards Init ---
+        const vocabContainer = document.getElementById('vocab-container');
+        let shuffledVocab = shuffleArray([...vocab]);
+
+        shuffledVocab.forEach((v, index) => {
+            const card = document.createElement('div');
+            card.className = "flashcard h-40 relative";
+            card.innerHTML = `
+                <div class="flashcard-inner w-full h-full relative transition-transform text-center rounded-2xl shadow-lg border-2 border-blue-200 bg-white flex items-center justify-center" onclick="flipCard(this, event)">
+                    <div class="flashcard-front flex items-center justify-center flex-col p-2 bg-gradient-to-b from-white to-blue-50 rounded-2xl">
+                        <span class="text-5xl font-bold font-simsun hanzi-text text-gray-800" onclick="zoomHanzi(this, event)">${v.hanzi}</span>
+                        <span class="pinyin text-blue-600 font-bold mt-4 text-xl tracking-wide">${v.pinyin}</span>
+                    </div>
+                    <div class="flashcard-back flex items-center justify-center flex-col p-4 bg-gradient-to-b from-blue-100 to-blue-200 rounded-2xl border-4 border-white">
+                        <span class="text-2xl font-extrabold text-blue-900">${v.meaning}</span>
+                    </div>
+                </div>
+            `;
+            vocabContainer.appendChild(card);
+        });
+
+        function togglePinyin() {
+            const hide = document.getElementById('hidePinyin').checked;
+            document.querySelectorAll('.pinyin').forEach(el => {
+                el.style.visibility = hide ? 'hidden' : 'visible';
+            });
+        }
+
+        function flipCard(cardInner, event) {
+            cardInner.parentElement.classList.toggle('flipped');
+        }
+
+        const synth = new Tone.Synth().toDestination();
+        async function zoomHanzi(element, event) {
+            event.stopPropagation(); // Mencegah flip card saat zoom
+            element.classList.toggle('hanzi-zoomed');
+            
+            if (element.classList.contains('hanzi-zoomed')) {
+                // Memulai interaksi suara (Tone.js perlu interaksi pengguna pertama kali)
+                await Tone.start();
+                synth.triggerAttackRelease("C5", "8n"); // Mainkan nada "Ting!"
+                
+                // Efek kembang api visual meledak dari letak kursor
+                confetti({
+                    particleCount: 80,
+                    spread: 70,
+                    origin: { 
+                        x: event.clientX / window.innerWidth, 
+                        y: event.clientY / window.innerHeight 
+                    },
+                    colors: ['#3b82f6', '#f43f5e', '#10b981', '#fef08a']
+                });
+            }
+        }
+
+        // --- Match Game Logic ---
+        let matchSelectedPinyin = null;
+        let matchSelectedHanzi = null;
+        let matchedCount = 0;
+        
+        function initMatchGame() {
+            const pinyinCol = document.getElementById('match-pinyin-col');
+            const hanziCol = document.getElementById('match-hanzi-col');
+            pinyinCol.innerHTML = ''; hanziCol.innerHTML = '';
+            document.getElementById('match-feedback').innerText = '';
+            matchedCount = 0;
+            matchSelectedPinyin = null;
+            matchSelectedHanzi = null;
+
+            // Pick 6 random vocab words for the game to not overwhelm
+            let gameVocab = shuffleArray([...vocab]).slice(0, 6);
+            let pinyinArr = shuffleArray([...gameVocab]);
+            let hanziArr = shuffleArray([...gameVocab]);
+
+            pinyinArr.forEach(v => {
+                let btn = document.createElement('button');
+                btn.className = "match-btn pinyin-btn bg-white text-pink-700 font-extrabold text-xl py-4 rounded-xl shadow-sm";
+                btn.innerText = v.pinyin;
+                btn.dataset.id = v.hanzi;
+                btn.onclick = () => selectMatch('pinyin', btn);
+                pinyinCol.appendChild(btn);
+            });
+
+            hanziArr.forEach(v => {
+                let btn = document.createElement('button');
+                btn.className = "match-btn hanzi-btn bg-white text-gray-800 font-simsun font-bold text-4xl py-2 rounded-xl shadow-sm";
+                btn.innerText = v.hanzi;
+                btn.dataset.id = v.hanzi;
+                btn.onclick = () => selectMatch('hanzi', btn);
+                hanziCol.appendChild(btn);
+            });
+        }
+
+        function selectMatch(type, btn) {
+            if(btn.classList.contains('matched')) return;
+
+            // Handle selection styling
+            document.querySelectorAll(`.${type}-btn`).forEach(el => {
+                if(!el.classList.contains('matched')) el.classList.remove('selected');
+            });
+            btn.classList.add('selected');
+
+            if(type === 'pinyin') matchSelectedPinyin = btn;
+            else matchSelectedHanzi = btn;
+
+            // Check match if both selected
+            if(matchSelectedPinyin && matchSelectedHanzi) {
+                if(matchSelectedPinyin.dataset.id === matchSelectedHanzi.dataset.id) {
+                    // Correct!
+                    matchSelectedPinyin.classList.remove('selected');
+                    matchSelectedHanzi.classList.remove('selected');
+                    matchSelectedPinyin.classList.add('matched');
+                    matchSelectedHanzi.classList.add('matched');
+                    matchedCount++;
+                    
+                    if(matchedCount === 6) {
+                        document.getElementById('match-feedback').innerText = "🎉 Wah Hebat! Kamu berhasil menjodohkan semuanya! 🎉";
+                    }
+                } else {
+                    // Wrong!
+                    let p = matchSelectedPinyin;
+                    let h = matchSelectedHanzi;
+                    p.classList.add('error');
+                    h.classList.add('error');
+                    setTimeout(() => {
+                        p.classList.remove('error', 'selected');
+                        h.classList.remove('error', 'selected');
+                    }, 400);
+                }
+                matchSelectedPinyin = null;
+                matchSelectedHanzi = null;
+            }
+        }
+        
+        // Init the game on load
+        initMatchGame();
+
+        // --- Sentences (Fill in the Blanks) for WB Tab ---
+        const sentencesData = [
+            { text: "1. 我们每天七点上课，我 [blank] 六点半去学校。", options: ["可以", "最", "累", "快", "应该"], answer: "应该" },
+            { text: "2. 你 [blank] 帮我把那本书给我吗？", options: ["可以", "最", "累", "快", "应该"], answer: "可以" },
+            { text: "3. 我很 [blank] ，想睡觉了。", options: ["可以", "最", "累", "快", "应该"], answer: "累" },
+            { text: "4. 我 [blank] 喜欢吃苹果。", options: ["可以", "最", "累", "快", "应该"], answer: "最" },
+            { text: "5. 爸爸，您开车别太 [blank] 了！", options: ["可以", "最", "累", "快", "应该"], answer: "快" }
+        ];
+
+        const sentenceContainer = document.getElementById('sentence-container');
+        sentencesData.forEach((s, index) => {
+            let optionsHtml = `<select id="wb-s${index}" class="border-2 border-yellow-400 bg-white rounded-lg p-1 mx-2 text-yellow-700 font-extrabold outline-none"><option value="">--Pilih--</option>`;
+            s.options.forEach(opt => optionsHtml += `<option value="${opt}">${opt}</option>`);
+            optionsHtml += `</select>`;
+            const p = document.createElement('p');
+            p.className = "flex items-center my-3";
+            p.innerHTML = s.text.replace("[blank]", optionsHtml) + `<span id="fb-wb-s${index}" class="ml-2"></span>`;
+            sentenceContainer.appendChild(p);
+        });
+
+        // --- Hanzi Writer ---
+        const hanzis = ['应', '该', '可', '以', '快', '慢', '最', '走', '到'];
+        const writers = [];
+        const writingContainer = document.getElementById('writing-container');
+
+        hanzis.forEach((char, idx) => {
+            const div = document.createElement('div');
+            div.className = "flex flex-col items-center bg-white p-4 rounded-2xl shadow-sm border border-gray-100";
+            div.innerHTML = `
+                <span class="text-4xl font-simsun font-bold mb-3 text-gray-700">${char}</span>
+                <div id="char-${idx}" class="hanzi-container"></div>
+                <div class="mt-4 space-x-2 flex">
+                    <button onclick="writers[${idx}].animateCharacter()" class="text-sm bg-blue-100 hover:bg-blue-200 text-blue-700 font-bold py-2 px-3 rounded-lg flex-1 shadow-sm">Animasi</button>
+                    <button onclick="writers[${idx}].quiz()" class="text-sm bg-orange-100 hover:bg-orange-200 text-orange-700 font-bold py-2 px-3 rounded-lg flex-1 shadow-sm">Latihan</button>
+                </div>
+            `;
+            writingContainer.appendChild(div);
+        });
+
+        setTimeout(() => {
+            hanzis.forEach((char, idx) => {
+                const writer = HanziWriter.create(`char-${idx}`, char, {
+                    width: 140, height: 140, padding: 5,
+                    showOutline: true, strokeAnimationSpeed: 1.5, delayBetweenStrokes: 100,
+                    strokeColor: '#059669', // Emerald color for writing
+                    highlightColor: '#fca5a5'
+                });
+                writers.push(writer);
+            });
+        }, 500);
+
+        // --- Comprehensive Workbook Check ---
+        function setFeedback(elementId, isCorrect, correctAnswer = "") {
+            const el = document.getElementById(elementId);
+            if(isCorrect) {
+                el.innerHTML = "✔️ Benar!";
+                el.className = "text-green-600 font-extrabold ml-3 animate-pulse";
+            } else {
+                el.innerHTML = `❌ Salah (Jawab: ${correctAnswer})`;
+                el.className = "text-red-500 font-bold ml-3";
+            }
+        }
+
+        function checkWorkbookLengkap() {
+            let totalCorrect = 0;
+            let totalQuestions = 0;
+
+            // 1. Sentences
+            sentencesData.forEach((s, index) => {
+                const val = document.getElementById(`wb-s${index}`).value;
+                const isCorrect = (val === s.answer);
+                setFeedback(`fb-wb-s${index}`, isCorrect, s.answer);
+                if(isCorrect) totalCorrect++;
+                totalQuestions++;
+            });
+
+            // 2. Grammar (能 vs 允许)
+            const gAnswers = ["允许", "能", "能", "允许"];
+            for(let i=1; i<=4; i++) {
+                const val = document.getElementById(`wb-g${i}`).value;
+                const isCorrect = (val === gAnswers[i-1]);
+                setFeedback(`fb-wb-g${i}`, isCorrect, gAnswers[i-1] === "能" ? "能 (Bisa)" : "允许 (Boleh)");
+                if(isCorrect) totalCorrect++;
+                totalQuestions++;
+            }
+
+            // 3. Math Logic
+            const mAnswers = ["丽莎", "丽丽", "丽丽", "天明", "天明"];
+            for(let i=1; i<=5; i++) {
+                const val = document.getElementById(`wb-m${i}`).value;
+                const isCorrect = (val === mAnswers[i-1]);
+                setFeedback(`fb-wb-m${i}`, isCorrect, mAnswers[i-1]);
+                if(isCorrect) totalCorrect++;
+                totalQuestions++;
+            }
+
+            // 4. Reading
+            // Allowed answers (Hanzi or lowercase pinyin)
+            const rAnswers = [
+                ["姐姐", "jiejie", "kakak"], // 1
+                ["九", "jiu", "9", "sembilan"], // 2
+                ["十三", "shisan", "13", "tiga belas"], // 3
+                ["妈妈", "mama", "ibu"], // 4
+                ["汽车", "qiche", "mobil", "坐汽车"], // 5
+                ["自行车", "zixingche", "sepeda", "骑自行车"], // 6
+                ["火车", "huoche", "kereta", "坐火车"], // 7
+                ["汽车", "qiche", "mobil"], // 8
+                ["爷爷和奶奶", "yeye", "nainai", "kakek", "nenek", "爷爷", "奶奶"], // 9
+                ["飞机", "feiji", "pesawat"] // 10
+            ];
+            
+            for(let i=1; i<=10; i++) {
+                const val = document.getElementById(`wb-r${i}`).value.toLowerCase().trim();
+                const isCorrect = rAnswers[i-1].some(ans => val.includes(ans)) && val !== "";
+                setFeedback(`fb-wb-r${i}`, isCorrect, rAnswers[i-1][0]);
+                if(isCorrect) totalCorrect++;
+                totalQuestions++;
+            }
+
+            // Final score display
+            const finalFb = document.getElementById('wb-final-feedback');
+            finalFb.innerText = `Skor Kamu: ${totalCorrect} dari ${totalQuestions} 🏆`;
+            finalFb.className = totalCorrect === totalQuestions 
+                ? "mt-6 font-extrabold text-3xl text-green-500 animate-bounce" 
+                : "mt-6 font-extrabold text-3xl text-orange-500";
+        }
+
+        // --- Reading Tab Quiz Logic ---
+        const readingQuizData = [
+            { q: "Keluarga tersebut berencana pergi berwisata (旅游) ke mana?", a: "巴厘岛 (Pulau Bali)", options: ["北京 (Beijing)", "雅加达 (Jakarta)", "学校 (Sekolah)"] },
+            { q: "Mengapa mereka tidak jadi menggunakan sepeda (自行车) untuk pergi ke Bali?", a: "太慢了 (Terlalu lambat)", options: ["太快了 (Terlalu cepat)", "没钱 (Tidak ada uang)", "坏了 (Rusak)"] },
+            { q: "Apa kelemahan pergi ke Bali menggunakan mobil (汽车) menurut percakapan?", a: "一定很累 (Pasti sangat lelah)", options: ["太快了 (Terlalu cepat)", "会堵车 (Akan macet)", "很贵 (Sangat mahal)"] },
+            { q: "Jika memutuskan pergi naik kereta api (火车), apa yang harus mereka lakukan selanjutnya?", a: "转渡轮 (Ganti naik feri)", options: ["走路 (Berjalan kaki)", "睡觉 (Tidur)", "坐飞机 (Naik pesawat)"] },
+            { q: "Apa alasan utama mereka akhirnya memilih naik pesawat terbang (飞机)?", a: "很快 (Sangat cepat)", options: ["很便宜 (Sangat murah)", "很好玩 (Sangat menyenangkan)", "很大 (Sangat besar)"] },
+            { q: "Apa arti kalimat '大家都同意吗？' (Dàjiā dōu tóngyì ma?)", a: "Apakah semuanya setuju?", options: ["Apakah semuanya bisa?", "Apakah semuanya suka?", "Apakah semuanya sudah makan?"] },
+            { q: "Bagaimana respon semuanya (众人) setelah diputuskan untuk naik pesawat?", a: "同意 (Setuju)", options: ["不同意 (Tidak setuju)", "我们可以 (Kita boleh)", "应该 (Harus)"] },
+            { q: "Kendaraan (transportasi) apa yang TIDAK disebutkan sebagai pilihan dalam percakapan tersebut?", a: "摩托车 (Sepeda motor)", options: ["飞机 (Pesawat)", "火车 (Kereta api)", "汽车 (Mobil)"] },
+            { q: "'巴厘岛很远' (Bālí dǎo hěn yuǎn) - Apa arti kata '远' (yuǎn) dalam kalimat ini?", a: "Jauh", options: ["Dekat", "Indah", "Panas"] },
+            { q: "Kalimat bahasa Mandarin yang benar untuk 'Kita bisa pergi naik mobil!' adalah...", a: "我们可以坐汽车去！", options: ["我们可以坐飞机去！", "我们可以坐火车去！", "我们可以骑自行车去！"] }
+        ];
+
+        let currentReadingQuiz = [];
+
+        function renderReadingQuiz() {
+            const container = document.getElementById('reading-quiz-container');
+            container.innerHTML = '';
+            document.getElementById('rq-final-feedback').innerText = '';
+            
+            // Shuffle questions
+            currentReadingQuiz = shuffleArray([...readingQuizData]);
+            
+            currentReadingQuiz.forEach((quiz, qIndex) => {
+                // Combine correct answer with incorrect options, then shuffle options
+                let allOptions = [quiz.a, ...quiz.options];
+                let shuffledOptions = shuffleArray([...allOptions]);
+                
+                let quizHtml = `
+                <div class="bg-white p-5 rounded-xl border-2 border-teal-100 shadow-sm" id="rq-box-${qIndex}">
+                    <p class="font-extrabold text-lg text-teal-900 mb-3">${qIndex + 1}. ${quiz.q}</p>
+                    <div class="space-y-2 pl-2">
+                `;
+                
+                shuffledOptions.forEach((opt, oIndex) => {
+                    quizHtml += `
+                        <label class="flex items-center space-x-3 cursor-pointer p-2 rounded hover:bg-teal-50 transition-colors">
+                            <input type="radio" name="rq-q${qIndex}" value="${opt}" class="w-5 h-5 text-teal-600 border-gray-300 focus:ring-teal-500">
+                            <span class="text-gray-800 font-semibold">${opt}</span>
+                        </label>
+                    `;
+                });
+                
+                quizHtml += `
+                    </div>
+                    <div id="fb-rq-${qIndex}" class="mt-3 font-bold text-lg hidden"></div>
+                </div>`;
+                
+                container.innerHTML += quizHtml;
+            });
+        }
+
+        function checkReadingQuiz() {
+            let correctCount = 0;
+            const total = currentReadingQuiz.length;
+            
+            currentReadingQuiz.forEach((quiz, qIndex) => {
+                const selected = document.querySelector(`input[name="rq-q${qIndex}"]:checked`);
+                const feedbackEl = document.getElementById(`fb-rq-${qIndex}`);
+                const boxEl = document.getElementById(`rq-box-${qIndex}`);
+                
+                feedbackEl.classList.remove('hidden');
+                
+                if (selected && selected.value === quiz.a) {
+                    correctCount++;
+                    feedbackEl.innerHTML = `✔️ Benar!`;
+                    feedbackEl.className = "mt-3 font-extrabold text-lg text-green-600 block animate-pulse";
+                    boxEl.classList.replace('border-teal-100', 'border-green-300');
+                    boxEl.classList.add('bg-green-50');
+                } else {
+                    let userAns = selected ? selected.value : "(Kosong)";
+                    feedbackEl.innerHTML = `❌ Salah. (Jawaban benar: <b>${quiz.a}</b>)`;
+                    feedbackEl.className = "mt-3 font-bold text-lg text-red-500 block";
+                    boxEl.classList.replace('border-teal-100', 'border-red-300');
+                    boxEl.classList.add('bg-red-50');
+                }
+            });
+
+            const finalFb = document.getElementById('rq-final-feedback');
+            finalFb.innerText = `Skor Kuis Membaca: ${correctCount} / ${total} 🌟`;
+            finalFb.className = correctCount === total 
+                ? "mt-6 font-extrabold text-3xl text-teal-600 animate-bounce" 
+                : "mt-6 font-extrabold text-3xl text-orange-500";
+        }
+
+        // Init Reading Quiz on load
+        renderReadingQuiz();
+    </script>
+</body>
+</html>
